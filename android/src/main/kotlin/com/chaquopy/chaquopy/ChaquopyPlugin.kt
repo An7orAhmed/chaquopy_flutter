@@ -11,6 +11,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.util.*
+import android.util.Log
 
 /** ChaquopyPlugin */
 class ChaquopyPlugin : FlutterPlugin, MethodCallHandler {
@@ -28,9 +29,13 @@ class ChaquopyPlugin : FlutterPlugin, MethodCallHandler {
 
     //  * This will run app.py from python folder...
     fun _runPythonApp() {
-        val _python: Python = Python.getInstance()
-        val _console: PyObject = _python.getModule("app")
-        _console.callAttr("main")
+        try {
+            val _python: Python = Python.getInstance()
+            val _console: PyObject = _python.getModule("app")
+            _console.callAttr("main")
+        } catch (e: Exception) {
+            Log.e("chaquopy", "Error running Python script: ${e.message}")
+        }
     }
 
     //  * This will run python code consisting of error and result output...
