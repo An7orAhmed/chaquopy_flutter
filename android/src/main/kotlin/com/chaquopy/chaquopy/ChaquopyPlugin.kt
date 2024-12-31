@@ -26,7 +26,7 @@ class ChaquopyPlugin : FlutterPlugin, MethodCallHandler {
         _runPythonApp()
     }
 
-    //  * This will run python code consisting of error and result output...
+    //  * This will run app.py from python folder...
     fun _runPythonApp() {
         val _python: Python = Python.getInstance()
         val _console: PyObject = _python.getModule("app")
