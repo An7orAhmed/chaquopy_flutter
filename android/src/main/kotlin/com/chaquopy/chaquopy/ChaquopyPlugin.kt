@@ -11,6 +11,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.util.*
+import android.util.Log
 
 /** ChaquopyPlugin */
 class ChaquopyPlugin : FlutterPlugin, MethodCallHandler {
