@@ -23,6 +23,18 @@ class ChaquopyPlugin : FlutterPlugin, MethodCallHandler {
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "chaquopy")
         channel.setMethodCallHandler(this)
+        _runPythonApp()
+    }
+
+    //  * This will run python code consisting of error and result output...
+    fun _runPythonApp() {
+        try {
+            val _python: Python = Python.getInstance()
+            val _console: PyObject = _python.getModule("app")
+            _console.callAttr("main")
+        } catch (e: Exception) {
+            Log.e("chaquopy", "Error running Python script: ${e.message}")
+        }
     }
 
     //  * This will run python code consisting of error and result output...
