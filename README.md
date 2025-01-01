@@ -228,6 +228,7 @@ void main() {
 ### Notes
 - Ensure Python 8.3 is installed on your system.
 - Update the paths and dependencies based on your project’s requirements.
-- Verify the `script.py` file is correctly placed under `android/app/src/main/python`.
+- Verify the `script.py` file is correctly placed under `android/app/src/main/python` if you want to run python script from flutter.
+- Verify the `App.py` file is correctly placed under `android/app/src/main/python` with minimum server setup code if you want to start server from flutter.
 
 You are now ready to use Chaquopy with Flutter! 🎉
