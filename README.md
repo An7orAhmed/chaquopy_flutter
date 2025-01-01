@@ -142,12 +142,10 @@ def mainTextCode(code):
 
 ---
 
-To update your usage example for **Chaquopy** in Flutter for both running Python code and starting a server, I'll show you how to execute a Python script directly and also start a Flask-like server that can handle HTTP requests.
-
 ### Flutter Usage Example for Chaquopy
 
 1. **Running Python code**: Use `Chaquopy.executeCode()` to run a Python script.
-2. **Starting the server**: Use `Chaquopy.startPyServer()` to start a Python server (like Flask) and send an HTTP request to it.
+2. **Starting the server**: Use `Chaquopy.startPyServer()` to start a Python HTTP server.
 
 ### Full Example
 
@@ -164,7 +162,7 @@ void executePythonScript() async {
   print(json["msg"]); // Outputs: Hello from Python!
 }
 
-Future<void> startFlaskServer() async {
+Future<void> testHTTPServer() async {
   // Step 2: Starting a Python server
   // This assumes you have a Python server script that can be invoked with Chaquopy
   await Chaquopy.startPyServer(port: 9876); // Start the server on port 9876
@@ -186,7 +184,7 @@ void main() {
   executePythonScript();
 
   // Then start the server
-  startFlaskServer();
+  testHTTPServer();
 }
 ```
 
