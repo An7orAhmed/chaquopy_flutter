@@ -24,17 +24,42 @@ class ChaquopyPlugin : FlutterPlugin, MethodCallHandler {
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "chaquopy")
         channel.setMethodCallHandler(this)
-        _runPythonApp()
     }
 
-    //  * This will run app.py from python folder...
-    fun _runPythonApp() {
-        try {
+    private var console: PyObject? = null
+    private var textOutputStream: PyObject? = null
+
+    private fun setupPythonEnv(): Boolean {
+        if (console == null || textOutputStream == null) {
             val _python: Python = Python.getInstance()
-            val _console: PyObject = _python.getModule("app")
-            _console.callAttr("main")
-        } catch (e: Exception) {
-            Log.e("chaquopy", "Error running Python script: ${e.message}")
+            val _sys: PyObject = _python.getModule("sys")
+            val _io: PyObject = _python.getModule("io")
+
+            console = _python.getModule("App")
+            textOutputStream = _io.callAttr("StringIO")
+            _sys["stdout"] = textOutputStream
+
+            return true
+        }
+        return false
+    }
+
+    //  * This will run flask app consisting of error and result output...
+    fun _startPyServer(port: Int): Map<String, Any?> {
+        val _returnOutput: MutableMap<String, Any?> = HashMap()
+
+        return try {
+            val isStarted = setupPythonEnv()
+            if(isStarted) {
+                console?.callAttrThrows("main", port)
+                _returnOutput["message"] = textOutputStream?.callAttr("getvalue").toString()
+                return _returnOutput
+            }
+            _returnOutput["message"] = "Python server already running."
+            _returnOutput
+        } catch (e: PyException) {
+            _returnOutput["error"] = e.message.toString()
+            _returnOutput
         }
     }
 
@@ -50,25 +75,45 @@ class ChaquopyPlugin : FlutterPlugin, MethodCallHandler {
             val _textOutputStream: PyObject = _io.callAttr("StringIO")
             _sys["stdout"] = _textOutputStream
             _console.callAttrThrows("mainTextCode", code)
-            _returnOutput["textOutputOrError"] = _textOutputStream.callAttr("getvalue").toString()
+            _returnOutput["message"] = _textOutputStream.callAttr("getvalue").toString()
             _returnOutput
         } catch (e: PyException) {
-            _returnOutput["textOutputOrError"] = e.message.toString()
+            _returnOutput["error"] = e.message.toString()
             _returnOutput
         }
     }
 
+    private fun _handleMethodCall(method: String, arguments: Any?, block: (Any?) -> Map<String, Any?>): Map<String, Any?> {
+        return try {
+            val str: String? = arguments as? String
+            val number: Int? = arguments as? Int
+            if (str != null) {
+                return block(str) 
+            } else if (number != null) {
+                return block(number) 
+            } else {
+                return block(arguments) 
+            }
+        } catch (e: Exception) {
+            val result: MutableMap<String, Any?> = HashMap()
+            result["error"] = e.message.toString()
+            result
+        }
+    }
+
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-        if (call.method == "runPythonScript") {
-            try {
+        when (call.method) {
+            "runPythonScript" -> {
                 val code: String = call.arguments() ?: ""
-                val _result: Map<String, Any?> = _runPythonTextCode(code)
-                result.success(_result)
-            } catch (e: Exception) {
-                val _result: MutableMap<String, Any?> = HashMap()
-                _result["textOutputOrError"] = e.message.toString()
+                val _result = _handleMethodCall("runPythonScript", code) { _runPythonTextCode(it!! as String) }
                 result.success(_result)
             }
+            "startPyServer" -> {
+                val port: Int = call.arguments() ?: 5000
+                val _result = _handleMethodCall("startPyServer", port) { _startPyServer(it!! as Int) }
+                result.success(_result)
+            }
+            else -> result.notImplemented()
         }
     }
 
