@@ -95,7 +95,7 @@ android:name="com.chaquo.python.android.PyApplication"
 
 ---
 
-### 6. Add a Python Script
+### 6. Add a Python Script to run python code
 
 Create a file named `script.py` in the following directory:
 ```
@@ -142,7 +142,42 @@ def mainTextCode(code):
 
 ---
 
-### Flutter Usage Example for Chaquopy
+### 7. Add a Python Script for HTTP Server
+
+Create a file named `App.py` in the following directory:
+```
+android/app/src/main/python
+```
+
+#### Content of `App.py`
+```python
+from bottle import Bottle, response
+import json
+
+# Create a Bottle application instance
+app = Bottle()
+
+# Define a simple route for the GET request
+@app.route('/', method='GET')
+def process():
+    # Create a response object with JSON data
+    result = {"msg": "Hello from Bottle!"}
+
+    # Set the content type of the response to application/json
+    response.content_type = 'application/json'
+
+    # Return the result as a JSON string
+    return json.dumps(result)
+
+# Run the Bottle web server
+def main(port):
+    app.run(host='0.0.0.0', port=port)
+
+```
+
+---
+
+### 8. Flutter Usage Example for Chaquopy
 
 1. **Running Python code**: Use `Chaquopy.executeCode()` to run a Python script.
 2. **Starting the server**: Use `Chaquopy.startPyServer()` to start a Python HTTP server.
