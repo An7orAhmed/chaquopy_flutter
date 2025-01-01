@@ -153,6 +153,7 @@ android/app/src/main/python
 ```python
 from bottle import Bottle, response
 import json
+import threading
 
 # Create a Bottle application instance
 app = Bottle()
@@ -170,8 +171,12 @@ def process():
     return json.dumps(result)
 
 # Run the Bottle web server
-def main(port):
+def start_server(port):
     app.run(host='0.0.0.0', port=port)
+
+def main(port):
+    task = threading.Thread(target=start_server, args=(port,), daemon=True)
+    task.start()
 
 ```
 
