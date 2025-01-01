@@ -14,7 +14,7 @@ class Chaquopy {
     return Map<String, dynamic>.from(outputData);
   }
 
-  /// This function execute App.py > flask app start and returns result Map.
+  /// This function execute App.py, start a HTTP server on localhost and returns result Map.
   static Future<Map<String, dynamic>> startPyServer({int port = 5000}) async {
     dynamic outputData = await _channel.invokeMethod('startPyServer', port);
     return Map<String, dynamic>.from(outputData);
