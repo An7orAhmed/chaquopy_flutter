@@ -15,8 +15,16 @@ class Chaquopy {
   }
 
   /// This function execute App.py, start a HTTP server on localhost and returns result Map.
-  static Future<Map<String, dynamic>> startPyServer({int port = 5000}) async {
-    dynamic outputData = await _channel.invokeMethod('startPyServer', port);
+  static Future<Map<String, dynamic>> runFromFile({
+    required String file,
+    required String function,
+    String args = '',
+  }) async {
+    final code = rootBundle.loadString(file);
+    dynamic outputData = await _channel.invokeMethod(
+      'runFromFile',
+      {'code': code, 'function': function, 'args': args},
+    );
     return Map<String, dynamic>.from(outputData);
   }
 }
