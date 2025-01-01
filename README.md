@@ -142,18 +142,51 @@ def mainTextCode(code):
 
 ---
 
-### 7. Usage Example in Flutter
+To update your usage example for **Chaquopy** in Flutter for both running Python code and starting a server, I'll show you how to execute a Python script directly and also start a Flask-like server that can handle HTTP requests.
 
-Assume your Python script always outputs JSON strings. Here’s how you can invoke it in Flutter:
+### Flutter Usage Example for Chaquopy
+
+1. **Running Python code**: Use `Chaquopy.executeCode()` to run a Python script.
+2. **Starting the server**: Use `Chaquopy.startPyServer()` to start a Python server (like Flask) and send an HTTP request to it.
+
+### Full Example
+
 ```dart
 import 'dart:convert';
 import 'package:chaquopy/chaquopy.dart';
+import 'package:http/http.dart' as http;
 
 void executePythonScript() async {
+  // Step 1: Running Python code
   final result = await Chaquopy.executeCode(
       'print("{\\"msg\\": \\"Hello from Python!\\"}")');
   final json = jsonDecode(result['textOutputOrError'].toString().replaceAll("'", "\""));
   print(json["msg"]); // Outputs: Hello from Python!
+}
+
+Future<void> startFlaskServer() async {
+  // Step 2: Starting a Python server
+  // This assumes you have a Python server script that can be invoked with Chaquopy
+  await Chaquopy.startPyServer(port: 9876); // Start the server on port 9876
+
+  // Step 3: Sending a POST request to the server
+  final data = jsonEncode({"data": [1, 2, 3, 4, 5]});
+
+  final resp = await http.post(
+    Uri.parse("http://localhost:9876/process"),
+    headers: {"Content-Type": "application/json"},
+    body: data,
+  );
+
+  print("Response from server: ${resp.body}");
+}
+
+void main() {
+  // First run the script example
+  executePythonScript();
+
+  // Then start the server
+  startFlaskServer();
 }
 ```
 
