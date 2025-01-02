@@ -115,7 +115,6 @@ import time
 import threading
 import ctypes
 import inspect
-import base64
 
 def _async_raise(tid, exctype):
     tid = ctypes.c_long(tid)
@@ -153,9 +152,7 @@ def mainTextCode(code):
 def file_thread_run(code, func_name, func_args):
     try:
         module = {}
-        decoded_byte = base64.b64decode(code, validate=True)
-        decoded_string = decoded_byte.decode('utf-8')
-        exec(decoded_string, module)
+        exec(code, module)
 
         if func_name not in module:
             raise ValueError(f"Function '{func_name}' not found")
@@ -181,8 +178,6 @@ def mainRunFile(code, func_name, func_args=None):
             raise TimeoutError
         time.sleep(1)
 ```
-
----
 
 ---
 
@@ -231,7 +226,7 @@ void main() {
 ### Notes
 - Ensure Python 8.3 is installed on your system.
 - Update the paths and dependencies based on your project’s requirements.
-- Verify the `script.py` file is correctly placed under `android/app/src/main/python` if you want to run python script from flutter.
+- Verify the `script.py` (given in this repo root dir) file is correctly placed under `android/app/src/main/python` if you want to run python script from flutter.
 - Verify the `test-py.py` or your own file is correctly placed under flutter assets folder and also included in `pubspec.yml` file.
 
 You are now ready to use Chaquopy with Flutter! 🎉

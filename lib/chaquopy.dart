@@ -20,7 +20,7 @@ class Chaquopy {
     required String function,
     String args = '',
   }) async {
-    final code = await rootBundle.load(file);
+    final code = await rootBundle.loadString(file);
     dynamic outputData = await _channel.invokeMethod(
       'runFromFile',
       {'code': code, 'function': function, 'args': args},
