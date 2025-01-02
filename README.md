@@ -104,7 +104,11 @@ android/app/src/main/python
 
 #### Content of `script.py`
 ```python
-import io, os, sys, time, threading, ctypes, inspect, traceback
+import time
+import threading
+import ctypes
+import inspect
+import base64
 
 def _async_raise(tid, exctype):
     tid = ctypes.c_long(tid)
@@ -119,80 +123,72 @@ def _async_raise(tid, exctype):
 
 def stop_thread(thread):
     _async_raise(thread.ident, SystemExit)
-    
+
 def text_thread_run(code):
     try:
         env = {}
         exec(code, env, env)
     except Exception as e:
         print(e)
-    
+
 def mainTextCode(code):
     global thread1
     thread1 = threading.Thread(target=text_thread_run, args=(code,), daemon=True)
     thread1.start()
-    timeout = 15  # Change timeout settings in seconds here...
+    timeout = 15  # change timeout settings in seconds here...
     thread1_start_time = time.time()
     while thread1.is_alive():
         if time.time() - thread1_start_time > timeout:
             stop_thread(thread1)
             raise TimeoutError
         time.sleep(1)
+
+def file_thread_run(code, func_name, func_args):
+    try:
+        module = {}
+        decoded_byte = base64.b64decode(code, validate=True)
+        decoded_string = decoded_byte.decode('utf-8')
+        exec(decoded_string, module)
+
+        if func_name not in module:
+            raise ValueError(f"Function '{func_name}' not found")
+
+        func = module[func_name]
+        if callable(func):
+            result = func(func_args) if func_args else func()
+            print(result)
+        else:
+            raise ValueError(f"'{func_name}' is not callable")
+    except Exception as e:
+        print(f"Error in executing function '{func_name}'': {e}")
+
+def mainRunFile(code, func_name, func_args=None):
+    global thread2
+    thread2 = threading.Thread(target=file_thread_run, args=(code, func_name, func_args,), daemon=True)
+    thread2.start()
+    timeout = 30  # change timeout settings in seconds here...
+    thread2_start_time = time.time()
+    while thread2.is_alive():
+        if time.time() - thread2_start_time > timeout:
+            stop_thread(thread2)
+            raise TimeoutError
+        time.sleep(1)
 ```
 
 ---
 
-### 7. Add a Python Script for HTTP Server
-
-Create a file named `App.py` in the following directory:
-```
-android/app/src/main/python
-```
-
-#### Content of `App.py`
-```python
-from bottle import Bottle, response
-import json
-import threading
-
-# Create a Bottle application instance
-app = Bottle()
-
-# Define a simple route for the GET request
-@app.route('/', method='GET')
-def process():
-    # Create a response object with JSON data
-    result = {"msg": "Hello from Bottle!"}
-
-    # Set the content type of the response to application/json
-    response.content_type = 'application/json'
-
-    # Return the result as a JSON string
-    return json.dumps(result)
-
-# Run the Bottle web server
-def start_server(port):
-    app.run(host='0.0.0.0', port=port)
-
-def main(port):
-    task = threading.Thread(target=start_server, args=(port,), daemon=True)
-    task.start()
-
-```
-
 ---
 
-### 8. Flutter Usage Example for Chaquopy
+### 7. Flutter Usage Example for Chaquopy
 
 1. **Running Python code**: Use `Chaquopy.executeCode()` to run a Python script.
-2. **Starting the server**: Use `Chaquopy.startPyServer()` to start a Python HTTP server.
+2. **Starting the server**: Use `Chaquopy.runFromFile()` to start a Python file from flutter assets.
 
 ### Full Example
 
 ```dart
 import 'dart:convert';
 import 'package:chaquopy/chaquopy.dart';
-import 'package:http/http.dart' as http;
 
 void executePythonScript() async {
   // Step 1: Running Python code
@@ -202,29 +198,24 @@ void executePythonScript() async {
   print(json["msg"]); // Outputs: Hello from Python!
 }
 
-Future<void> testHTTPServer() async {
-  // Step 2: Starting a Python server
-  // This assumes you have a Python server script that can be invoked with Chaquopy
-  await Chaquopy.startPyServer(port: 9876); // Start the server on port 9876
+Future<void> runPythonFile() async {
+  // Step 1: Calling a function from python file
+  // This assumes you have a Python file script that is stored in assets folder
+  final result = await Chaquopy.runFromFile(
+      file: 'assets/test-py.py',
+      function: 'process',
+      args: List.filled(5000, 1000).toString(),
+    );
 
-  // Step 3: Sending a POST request to the server
-  final data = jsonEncode({"data": [1, 2, 3, 4, 5]});
-
-  final resp = await http.post(
-    Uri.parse("http://localhost:9876/process"),
-    headers: {"Content-Type": "application/json"},
-    body: data,
-  );
-
-  print("Response from server: ${resp.body}");
+  if (kDebugMode) print(result); 
 }
 
 void main() {
   // First run the script example
   executePythonScript();
 
-  // Then start the server
-  testHTTPServer();
+  // Then call python function from python file
+  runPythonFile();
 }
 ```
 
@@ -234,6 +225,6 @@ void main() {
 - Ensure Python 8.3 is installed on your system.
 - Update the paths and dependencies based on your project’s requirements.
 - Verify the `script.py` file is correctly placed under `android/app/src/main/python` if you want to run python script from flutter.
-- Verify the `App.py` file is correctly placed under `android/app/src/main/python` with minimum server setup code if you want to start server from flutter.
+- Verify the `test-py.py` or your own file is correctly placed under flutter assets folder and also included in `pubspec.yml` file.
 
 You are now ready to use Chaquopy with Flutter! 🎉
