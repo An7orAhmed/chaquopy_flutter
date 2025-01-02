@@ -47,7 +47,7 @@ class ChaquopyPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     //  * This will run python code consisting of error and result output...
-    fun _runFromFile(base64Code: String, function: String, args: String): Map<String, Any?> {
+    fun _runFromFile(code: String, function: String, args: String): Map<String, Any?> {
         val _returnOutput: MutableMap<String, Any?> = HashMap()
         val _python: Python = Python.getInstance()
         val _console: PyObject = _python.getModule("script")
@@ -57,7 +57,7 @@ class ChaquopyPlugin : FlutterPlugin, MethodCallHandler {
         return try {
             val _textOutputStream: PyObject = _io.callAttr("StringIO")
             _sys["stdout"] = _textOutputStream
-            _console.callAttrThrows("mainRunFile", base64Code, function, args)
+            _console.callAttrThrows("mainRunFile", code, function, args)
             _returnOutput["message"] = _textOutputStream.callAttr("getvalue").toString()
             _returnOutput
         } catch (e: PyException) {
@@ -81,10 +81,10 @@ class ChaquopyPlugin : FlutterPlugin, MethodCallHandler {
             }
             "runFromFile" -> {
                 try {
-                    val base64String = call.argument("code") ?: ""
+                    val code = call.argument("code") ?: ""
                     val function = call.argument("function") ?: ""
                     val args = call.argument("args") ?: ""
-                    val _result = _runFromFile(base64String, function, args)
+                    val _result = _runFromFile(code, function, args)
                     result.success(_result)
                 } catch (e: Exception) {
                     val result: MutableMap<String, Any?> = HashMap()

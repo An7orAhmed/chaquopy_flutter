@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
+
 import 'package:flutter/services.dart';
 
 /// static class for accessing the executeCode function.
@@ -22,11 +21,9 @@ class Chaquopy {
     String args = '',
   }) async {
     final code = await rootBundle.load(file);
-    final fileBytes = code.buffer.asUint8List();
-    String base64String = base64Encode(fileBytes);
     dynamic outputData = await _channel.invokeMethod(
       'runFromFile',
-      {'code': base64String, 'function': function, 'args': args},
+      {'code': code, 'function': function, 'args': args},
     );
     return Map<String, dynamic>.from(outputData);
   }
