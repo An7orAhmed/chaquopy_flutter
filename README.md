@@ -6,10 +6,17 @@ This guide provides step-by-step instructions to integrate Chaquopy into your Fl
 
 ---
 
-### 1. Install the Chaquopy Dependency
-Run the following command to add Chaquopy to your Flutter project:
+### 1. Add the Chaquopy Dependency
+Add the following lines in `pubspec.yml` to add Chaquopy to your Flutter project:
+```yml
+chaquopy:
+    git:
+      ref: master
+      url: https://github.com/An7orAhmed/chaquopy_flutter.git
+```
+then run the following command to fetch:
 ```bash
-flutter pub add chaquopy
+flutter pub get
 ```
 
 ---
