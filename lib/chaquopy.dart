@@ -14,7 +14,7 @@ class Chaquopy {
     return Map<String, dynamic>.from(outputData);
   }
 
-  /// This function execute App.py, start a HTTP server on localhost and returns result Map.
+  /// This function call the function from the given python file and returns result Map.
   static Future<Map<String, dynamic>> runFromFile({
     required String file,
     required String function,
