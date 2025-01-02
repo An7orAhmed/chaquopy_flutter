@@ -189,7 +189,7 @@ def mainRunFile(code, func_name, func_args=None):
 ### 7. Flutter Usage Example for Chaquopy
 
 1. **Running Python code**: Use `Chaquopy.executeCode()` to run a Python script.
-2. **Starting the server**: Use `Chaquopy.runFromFile()` to start a Python file from flutter assets.
+2. **Calling function from python file**: Use `Chaquopy.runFromFile()` to start a Python file from flutter assets.
 
 ### Full Example
 
