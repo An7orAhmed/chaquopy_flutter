@@ -22,18 +22,19 @@ flutter pub get
 ---
 
 ### 2. Update `android/build.gradle`
-
-#### a. Add Chaquopy's Maven Repository
-In the `repositories` block, add the following:
+After `allprojects` block, add the following block:
 ```gradle
-maven { url "https://chaquo.com/maven" }
-```
-
-#### b. Add Chaquopy and Android Build Tools to Dependencies
-In the `dependencies` block, add:
-```gradle
-classpath "com.android.tools.build:gradle:8.7.3"
-classpath "com.chaquo.python:gradle:12.0.0"
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://chaquo.com/maven" }
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:8.7.3"
+        classpath "com.chaquo.python:gradle:12.0.0"
+    }
+}
 ```
 
 ---
