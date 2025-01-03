@@ -17,7 +17,7 @@ class Chaquopy {
   /// This function call the function from the given python file and returns result Map.
   static Future<Map<String, dynamic>> runFromFile({
     required String file,
-    required String function,
+    String function = 'main',
     String args = '',
   }) async {
     final code = await rootBundle.loadString(file);
